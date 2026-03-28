@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<!-- saved from url=(0069)file:///C:/Users/pooja/Downloads/Service-KPI-Dashboard-DrillDown.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Service Division — KPI Dashboard</title>
+<link href="./Service Division drill down— KPI Dashboard_files/css2" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0e14; --surface: #13171f; --surface2: #1a1f2b; --border: #232836;
+    --accent: #e8a020; --accent2: #3b82f6; --green: #22c55e; --red: #ef4444; --amber: #f59e0b;
+    --text: #e2e8f0; --muted: #64748b;
+    --heading: 'Bebas Neue', sans-serif; --body: 'DM Sans', sans-serif; --mono: 'DM Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--body); min-height: 100vh; overflow-x: hidden; }
+
+  /* HERO */
+  .hero { position: relative; height: 210px; overflow: hidden; border-bottom: 2px solid var(--accent); }
+  .hero img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.28) saturate(0.5); }
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(11,14,20,.97) 42%, transparent);
+    display: flex; align-items: center; padding: 0 48px; gap: 24px;
+  }
+  .hero-badge { width: 58px; height: 58px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; box-shadow: 0 0 36px rgba(232,160,32,.5); }
+  .hero-text h1 { font-family: var(--heading); font-size: 52px; letter-spacing: 4px; color: #fff; line-height: 1; }
+  .hero-text p { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; }
+  .hero-stats { margin-left: auto; display: flex; gap: 26px; }
+  .hero-stat .val { font-family: var(--heading); font-size: 30px; color: var(--accent); text-align: center; }
+  .hero-stat .lbl { font-size: 10px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; text-align: center; }
+
+  .shell { max-width: 1400px; margin: 0 auto; padding: 26px 24px 60px; }
+
+  .alert-bar { background: linear-gradient(90deg,rgba(239,68,68,.1),rgba(245,158,11,.04)); border: 1px solid rgba(239,68,68,.25); border-left: 3px solid var(--red); border-radius: 10px; padding: 11px 18px; font-size: 12px; color: var(--muted); margin-bottom: 22px; display: flex; align-items: center; gap: 10px; }
+  .alert-bar strong { color: var(--red); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; background: var(--surface); padding: 6px; border-radius: 12px; margin-bottom: 26px; border: 1px solid var(--border); width: fit-content; }
+  .tab-btn { padding: 9px 20px; border-radius: 8px; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; color: var(--muted); background: transparent; border: none; transition: all .2s; white-space: nowrap; font-family: var(--body); }
+  .tab-btn:hover { color: var(--text); background: var(--surface2); }
+  .tab-btn.active { background: var(--accent); color: #000; box-shadow: 0 0 18px rgba(232,160,32,.35); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* BREADCRUMB */
+  .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); margin-bottom: 18px; flex-wrap: wrap; }
+  .breadcrumb .bc-sep { color: var(--border); }
+  .breadcrumb .bc-link { color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .breadcrumb .bc-current { color: var(--text); font-weight: 600; }
+
+  /* SECTION HEADER */
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+  .section-header h2 { font-family: var(--heading); font-size: 26px; letter-spacing: 2px; }
+  .section-header .tag { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); }
+
+  /* KPI CARDS */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(185px,1fr)); gap: 13px; margin-bottom: 24px; }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 16px; position: relative; overflow: hidden; transition: transform .2s, border-color .2s, box-shadow .2s; }
+  .kpi-card.clickable { cursor: pointer; }
+  .kpi-card.clickable:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 8px 28px rgba(232,160,32,.18); }
+  .kpi-card.clickable::after { content: '↓ Drill'; position: absolute; bottom: 8px; right: 10px; font-size: 9px; font-weight: 700; letter-spacing: 1px; color: var(--accent); opacity: 0; transition: opacity .2s; text-transform: uppercase; }
+  .kpi-card.clickable:hover::after { opacity: 1; }
+  .kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:14px 14px 0 0; }
+  .kpi-card.green::before { background:var(--green); } .kpi-card.amber::before { background:var(--amber); }
+  .kpi-card.red::before { background:var(--red); } .kpi-card.blue::before { background:var(--accent2); } .kpi-card.gold::before { background:var(--accent); }
+  .kpi-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 9px; line-height: 1.4; }
+  .kpi-value { font-family: var(--heading); font-size: 40px; letter-spacing: 1px; line-height: 1; }
+  .kpi-unit { font-size: 16px; color: var(--muted); margin-left: 2px; }
+  .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 7px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+  .badge { font-weight: 600; padding: 2px 7px; border-radius: 6px; font-size: 10px; }
+  .badge.up { background:rgba(34,197,94,.15); color:var(--green); } .badge.down { background:rgba(239,68,68,.15); color:var(--red); } .badge.neutral { background:rgba(100,116,139,.15); color:var(--muted); }
+
+  /* DRILL HEADER */
+  .drill-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+  .drill-title { font-family: var(--heading); font-size: 22px; letter-spacing: 2px; color: var(--accent); }
+  .drill-subtitle { font-size: 11px; color: var(--muted); margin-top: 3px; letter-spacing: 1px; text-transform: uppercase; }
+  .back-btn { display: flex; align-items: center; gap: 7px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--body); letter-spacing: 1px; text-transform: uppercase; transition: border-color .2s, background .2s; }
+  .back-btn:hover { border-color: var(--accent); background: rgba(232,160,32,.06); }
+
+  /* DRILL PANEL */
+  .drill-panel { display: none; }
+  .drill-panel.active { display: block; }
+  .drill-panel-inner { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; border-top: 3px solid var(--accent); }
+
+  /* GAUGE */
+  .gauge-row { display: flex; gap: 13px; flex-wrap: wrap; margin-bottom: 24px; }
+  .gauge-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; flex: 1; min-width: 190px; }
+  .gauge-info .g-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .gauge-info .g-val { font-family: var(--heading); font-size: 28px; line-height: 1.1; }
+  .gauge-info .g-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* HBAR */
+  .hbar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+  .hbar-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 22px; }
+  .hbar-card h4 { font-family: var(--heading); font-size: 16px; letter-spacing: 1.5px; margin-bottom: 16px; }
+  .hbar-row { margin-bottom: 13px; }
+  .hbar-meta { display: flex; justify-content: space-between; margin-bottom: 5px; }
+  .hbar-name { font-size: 12px; color: var(--muted); } .hbar-num { font-family: var(--mono); font-size: 12px; font-weight: 500; }
+  .hbar-bg { background: var(--surface2); border-radius: 4px; height: 7px; overflow: hidden; }
+  .hbar-fg { height: 100%; border-radius: 4px; }
+  .vs { font-size: 10px; margin-left: 5px; }
+
+  /* TABLE */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 24px; }
+  .table-head { padding: 14px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .table-head h3 { font-family: var(--heading); font-size: 19px; letter-spacing: 1.5px; }
+  .legend { display: flex; gap: 14px; align-items: center; font-size: 11px; color: var(--muted); }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { padding: 10px 15px; font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  tbody tr { border-bottom: 1px solid rgba(35,40,54,.6); transition: background .15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,.025); }
+  tbody td { padding: 12px 15px; font-size: 13px; }
+  .sa-name { font-weight: 600; }
+  .metric-val { font-family: var(--mono); font-size: 12px; }
+  .status-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .pill-green { background:rgba(34,197,94,.12); color:var(--green); border:1px solid rgba(34,197,94,.2); }
+  .pill-amber { background:rgba(245,158,11,.12); color:var(--amber); border:1px solid rgba(245,158,11,.2); }
+  .pill-red   { background:rgba(239,68,68,.12);  color:var(--red);   border:1px solid rgba(239,68,68,.2); }
+
+  /* REGION CARDS */
+  .region-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 24px; }
+  .region-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; position: relative; transition: transform .2s, box-shadow .2s; }
+  .region-card.clickable { cursor: pointer; }
+  .region-card.clickable:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(232,160,32,.15); }
+  .region-card.clickable:hover .region-drill-hint { opacity: 1; }
+  .region-drill-hint { position: absolute; bottom: 14px; right: 16px; font-size: 9px; font-weight: 700; letter-spacing: 1px; color: var(--accent); opacity: 0; transition: opacity .2s; text-transform: uppercase; }
+  .region-name { font-family: var(--heading); font-size: 21px; letter-spacing: 2px; margin-bottom: 14px; }
+  .region-kpi { margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(35,40,54,.5); padding-bottom: 9px; }
+  .region-kpi:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .region-kpi-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .region-kpi-vals { text-align: right; }
+  .region-kpi-vals .mtd { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+  .region-kpi-vals .ytd { font-size: 10px; color: var(--muted); margin-top: 1px; }
+  .region-badge { position: absolute; top: 16px; right: 16px; font-size: 20px; }
+
+  /* RECALL GRID */
+  .recall-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+
+  /* MINI KPI SUMMARY in drill */
+  .mini-kpi-row { display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 10px; margin-bottom: 20px; }
+  .mini-kpi { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .mini-kpi-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+  .mini-kpi-val { font-family: var(--heading); font-size: 24px; }
+  .mini-kpi-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* INSIGHT BOX */
+  .insight-box { background: rgba(232,160,32,.06); border: 1px solid rgba(232,160,32,.2); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; font-size: 12px; color: var(--muted); line-height: 1.7; }
+  .insight-box strong { color: var(--accent); }
+
+  .footer { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+
+  /* Responsive */
+  @media(max-width:900px) {
+    .hbar-grid,.region-grid,.recall-grid { grid-template-columns:1fr; }
+    .hero-stats { display:none; }
+    .hero-text h1 { font-size:36px; }
+    .kpi-grid { grid-template-columns:repeat(2,1fr); }
+    .gauge-row { flex-direction:column; }
+    .tabs { flex-wrap: wrap; width: 100%; }
+  }
+  @media(max-width:580px) {
+    .hero { height: 120px; }
+    .hero-overlay { padding: 0 16px; gap: 12px; }
+    .hero-badge { width: 40px; height: 40px; font-size: 18px; }
+    .hero-text h1 { font-size: 22px; letter-spacing: 2px; }
+    .hero-text p { font-size: 8px; }
+    .shell { padding: 16px 12px 40px; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .tab-btn { padding: 8px 10px; font-size: 10px; }
+    .footer { flex-direction: column; gap: 6px; font-size: 10px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <img src="./Service Division drill down— KPI Dashboard_files/photo-1558618666-fcd25c85cd64" alt="Dealership Workshop">
+  <div class="hero-overlay">
+    <div class="hero-badge">🔧</div>
+    <div class="hero-text">
+      <h1>SERVICE KPI DASHBOARD</h1>
+      <p>Dealership Performance Monitoring — Multi-Level Drill-Down View &nbsp;|&nbsp; March 2026</p>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="val">83%</div><div class="lbl">Productivity</div></div>
+      <div class="hero-stat"><div class="val">88%</div><div class="lbl">Efficiency</div></div>
+      <div class="hero-stat"><div class="val">89%</div><div class="lbl">CSI</div></div>
+      <div class="hero-stat"><div class="val">SAR 2.53M</div><div class="lbl">Revenue MTD</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <div class="alert-bar">
+    ⚠️ <span><strong>Action Required:</strong> SA 3 throughput 18% below budget &nbsp;|&nbsp; Recall 2 (ECU Software) at only 61% completion &nbsp;|&nbsp; Region SR profit SAR 79K vs SAR 132K budget (–40%)</span>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn" onclick="switchTab(&#39;sm&#39;)">Service Manager</button>
+    <button class="tab-btn" onclick="switchTab(&#39;rsc&#39;)">Regional Coordinator</button>
+    <button class="tab-btn" onclick="switchTab(&#39;gm&#39;)">GM Service</button>
+    <button class="tab-btn active" onclick="switchTab(&#39;dir&#39;)">Director</button>
+  </div>
+
+  <!-- BREADCRUMB -->
+  <div class="breadcrumb" id="breadcrumb" style="display: flex;"><span class="bc-link" onclick="(function(){switchTab(&#39;dir&#39;)})()">Director</span><span class="bc-sep">›</span><span class="bc-current">REVENUE — FULL HIERARCHY BREAKDOWN</span></div>
+
+  <!-- =============================== -->
+  <!-- ====== SERVICE MANAGER ======= -->
+  <!-- =============================== -->
+  <div class="panel" id="panel-sm">
+    <div class="section-header"><h2>SERVICE MANAGER KPIs</h2><span class="tag">Workshop Level — March 2026</span></div>
+    <div class="kpi-grid">
+      <div class="kpi-card green clickable" onclick="drillKPI(&#39;sm&#39;,&#39;productivity&#39;)">
+        <div class="kpi-label">Workshop Productivity</div><div class="kpi-value">87<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub"><span class="badge up">Bud: 85%</span><span class="badge neutral">YTD: 85%</span></div>
+      </div>
+      <div class="kpi-card blue clickable" onclick="drillKPI(&#39;sm&#39;,&#39;efficiency&#39;)">
+        <div class="kpi-label">Workshop Efficiency</div><div class="kpi-value">92<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub"><span class="badge up">Bud: 90%</span><span class="badge up">YTD: 89%</span></div>
+      </div>
+      <div class="kpi-card gold clickable" onclick="drillKPI(&#39;sm&#39;,&#39;csi&#39;)">
+        <div class="kpi-label">CSI Score</div><div class="kpi-value">91<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub"><span class="badge neutral">Bud: 91%</span><span class="badge neutral">YTD: 91%</span></div>
+      </div>
+      <div class="kpi-card amber clickable" onclick="drillKPI(&#39;sm&#39;,&#39;delivery&#39;)">
+        <div class="kpi-label">Delivery Adherence</div><div class="kpi-value">94<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub"><span class="badge up">Bud: 92%</span><span class="badge up">YTD: 92%</span></div>
+      </div>
+      <div class="kpi-card red clickable" onclick="drillKPI(&#39;sm&#39;,&#39;marketing&#39;)">
+        <div class="kpi-label">Svc Marketing Eff.</div><div class="kpi-value">71<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub"><span class="badge down">Bud: 82%</span><span class="badge down">YTD: 74%</span></div>
+      </div>
+      <div class="kpi-card amber clickable" onclick="drillKPI(&#39;sm&#39;,&#39;vas&#39;)">
+        <div class="kpi-label">Value Added Sales</div><div class="kpi-value">SAR 94<span class="kpi-unit">K</span></div>
+        <div class="kpi-sub"><span class="badge down">Bud: SAR 110K</span><span class="badge down">YTD: SAR 0.87M</span></div>
+      </div>
+      <div class="kpi-card green clickable" onclick="drillKPI(&#39;sm&#39;,&#39;expenses&#39;)">
+        <div class="kpi-label">Workshop Expenses</div><div class="kpi-value">SAR 164<span class="kpi-unit">K</span></div>
+        <div class="kpi-sub"><span class="badge up">Bud: SAR 169K</span><span class="badge up">YTD: SAR 1.54M</span></div>
+      </div>
+    </div>
+
+    <!-- GAUGES -->
+    <div class="gauge-row">
+      <div class="gauge-card">
+        <svg width="68" height="68" viewBox="0 0 68 68"><circle cx="34" cy="34" r="26" fill="none" stroke="#1a1f2b" stroke-width="7"></circle><circle cx="34" cy="34" r="26" fill="none" stroke="#22c55e" stroke-width="7" stroke-dasharray="142" stroke-dashoffset="18" stroke-linecap="round" transform="rotate(-90 34 34)"></circle><text x="34" y="38" text-anchor="middle" fill="#e2e8f0" font-size="13" font-family="Bebas Neue">87%</text></svg>
+        <div class="gauge-info"><div class="g-label">Productivity</div><div class="g-val" style="color:var(--green)">On Track</div><div class="g-sub">Budget: 85%</div></div>
+      </div>
+      <div class="gauge-card">
+        <svg width="68" height="68" viewBox="0 0 68 68"><circle cx="34" cy="34" r="26" fill="none" stroke="#1a1f2b" stroke-width="7"></circle><circle cx="34" cy="34" r="26" fill="none" stroke="#3b82f6" stroke-width="7" stroke-dasharray="150" stroke-dashoffset="12" stroke-linecap="round" transform="rotate(-90 34 34)"></circle><text x="34" y="38" text-anchor="middle" fill="#e2e8f0" font-size="13" font-family="Bebas Neue">92%</text></svg>
+        <div class="gauge-info"><div class="g-label">Efficiency</div><div class="g-val" style="color:var(--accent2)">Excellent</div><div class="g-sub">Budget: 90%</div></div>
+      </div>
+      <div class="gauge-card">
+        <svg width="68" height="68" viewBox="0 0 68 68"><circle cx="34" cy="34" r="26" fill="none" stroke="#1a1f2b" stroke-width="7"></circle><circle cx="34" cy="34" r="26" fill="none" stroke="#e8a020" stroke-width="7" stroke-dasharray="149" stroke-dashoffset="13" stroke-linecap="round" transform="rotate(-90 34 34)"></circle><text x="34" y="38" text-anchor="middle" fill="#e2e8f0" font-size="13" font-family="Bebas Neue">91%</text></svg>
+        <div class="gauge-info"><div class="g-label">CSI Score</div><div class="g-val" style="color:var(--accent)">At Budget</div><div class="g-sub">Budget: 91%</div></div>
+      </div>
+      <div class="gauge-card">
+        <svg width="68" height="68" viewBox="0 0 68 68"><circle cx="34" cy="34" r="26" fill="none" stroke="#1a1f2b" stroke-width="7"></circle><circle cx="34" cy="34" r="26" fill="none" stroke="#f59e0b" stroke-width="7" stroke-dasharray="154" stroke-dashoffset="8" stroke-linecap="round" transform="rotate(-90 34 34)"></circle><text x="34" y="38" text-anchor="middle" fill="#e2e8f0" font-size="13" font-family="Bebas Neue">94%</text></svg>
+        <div class="gauge-info"><div class="g-label">Delivery Adh.</div><div class="g-val" style="color:var(--amber)">Strong</div><div class="g-sub">Budget: 92%</div></div>
+      </div>
+      <div class="gauge-card">
+        <svg width="68" height="68" viewBox="0 0 68 68"><circle cx="34" cy="34" r="26" fill="none" stroke="#1a1f2b" stroke-width="7"></circle><circle cx="34" cy="34" r="26" fill="none" stroke="#ef4444" stroke-width="7" stroke-dasharray="117" stroke-dashoffset="45" stroke-linecap="round" transform="rotate(-90 34 34)"></circle><text x="34" y="38" text-anchor="middle" fill="#e2e8f0" font-size="13" font-family="Bebas Neue">71%</text></svg>
+        <div class="gauge-info"><div class="g-label">Mktg Eff.</div><div class="g-val" style="color:var(--red)">Below Bud</div><div class="g-sub">Budget: 82%</div></div>
+      </div>
+    </div>
+
+    <div class="hbar-grid">
+      <div class="hbar-card">
+        <h4>THROUGHPUT — SA BREAKDOWN (Units MTD)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 1 — Abdullah Al-Harbi</span><span class="hbar-num">148 <span class="vs" style="color:var(--green)">▲ +8 vs bud 140</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:96%;background:var(--accent2)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 2 — Mohammed Al-Qahtani</span><span class="hbar-num">132 <span class="vs" style="color:var(--green)">▲ +2 vs bud 130</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:86%;background:var(--accent2)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 3 — Khalid Al-Otaibi</span><span class="hbar-num">98 <span class="vs" style="color:var(--red)">▼ -22 vs bud 120</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:64%;background:var(--red)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 4 — Faisal Al-Dossari</span><span class="hbar-num">124 <span class="vs" style="color:var(--amber)">= bud 124</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:81%;background:var(--accent2)"></div></div></div>
+      </div>
+      <div class="hbar-card">
+        <h4>REVENUE — SA BREAKDOWN (SAR 000s MTD)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 1 — Abdullah Al-Harbi</span><span class="hbar-num">SAR 81K <span class="vs" style="color:var(--green)">▲ +6%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:92%;background:var(--accent)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 2 — Mohammed Al-Qahtani</span><span class="hbar-num">SAR 71K <span class="vs" style="color:var(--green)">▲ +3%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:80%;background:var(--accent)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 3 — Khalid Al-Otaibi</span><span class="hbar-num">SAR 49K <span class="vs" style="color:var(--red)">▼ -18%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:56%;background:var(--red)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 4 — Faisal Al-Dossari</span><span class="hbar-num">SAR 67K <span class="vs" style="color:var(--amber)">▲ +1%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:76%;background:var(--accent)"></div></div></div>
+      </div>
+    </div>
+
+    <div class="hbar-grid">
+      <div class="hbar-card">
+        <h4>VALUE ADDED SERVICE SELLING — SA BREAKDOWN (SAR 000s MTD)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 1 — Abdullah Al-Harbi</span><span class="hbar-num">SAR 30K <span class="vs" style="color:var(--green)">▲ +8% vs bud SAR 28K</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:90%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 2 — Mohammed Al-Qahtani</span><span class="hbar-num">SAR 26K <span class="vs" style="color:var(--amber)">▼ -3% vs bud SAR 27K</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:78%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 3 — Khalid Al-Otaibi</span><span class="hbar-num">SAR 18K <span class="vs" style="color:var(--red)">▼ -34% vs bud SAR 28K</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:56%;background:var(--red)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 4 — Faisal Al-Dossari</span><span class="hbar-num">SAR 20K <span class="vs" style="color:var(--amber)">▼ -28% vs bud SAR 27K</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:60%;background:var(--amber)"></div></div></div>
+      </div>
+      <div class="hbar-card">
+        <h4>WORKSHOP EXPENSES — ACTUAL vs BUDGET (SAR 000s MTD)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Labour Cost</span><span class="hbar-num">SAR 62K <span class="vs" style="color:var(--green)">vs bud SAR 66K</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:95%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Parts &amp; Consumables</span><span class="hbar-num">SAR 56K <span class="vs" style="color:var(--green)">vs bud SAR 57K</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:98%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Equipment &amp; Tools</span><span class="hbar-num">SAR 25K <span class="vs" style="color:var(--amber)">vs bud SAR 24K</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:102%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Overheads</span><span class="hbar-num">SAR 21K <span class="vs" style="color:var(--green)">vs bud SAR 22K</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:94%;background:var(--green)"></div></div></div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-head">
+        <h3>SERVICE ADVISOR PERFORMANCE MATRIX</h3>
+        <div class="legend">
+          <span><span class="dot" style="background:var(--green)"></span>On Target</span>
+          <span><span class="dot" style="background:var(--amber)"></span>Near Target</span>
+          <span><span class="dot" style="background:var(--red)"></span>Below Target</span>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Service Advisor</th><th>Throughput MTD</th><th>Revenue MTD</th><th>CSI Score</th><th>Delivery Adh.</th><th>Recall Rate</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td class="sa-name">SA 1 — Abdullah Al-Harbi</td><td class="metric-val">148 <span style="color:var(--green);font-size:10px">(Bud:140)</span></td><td class="metric-val">SAR 81K <span style="color:var(--green);font-size:10px">(+6%)</span></td><td class="metric-val">93%</td><td class="metric-val">97%</td><td class="metric-val">88%</td><td><span class="status-pill pill-green">On Target</span></td></tr>
+          <tr><td class="sa-name">SA 2 — Mohammed Al-Qahtani</td><td class="metric-val">132 <span style="color:var(--green);font-size:10px">(Bud:130)</span></td><td class="metric-val">SAR 71K <span style="color:var(--green);font-size:10px">(+3%)</span></td><td class="metric-val">91%</td><td class="metric-val">95%</td><td class="metric-val">82%</td><td><span class="status-pill pill-green">On Target</span></td></tr>
+          <tr><td class="sa-name">SA 3 — Khalid Al-Otaibi</td><td class="metric-val">98 <span style="color:var(--red);font-size:10px">(Bud:120)</span></td><td class="metric-val">SAR 49K <span style="color:var(--red);font-size:10px">(-18%)</span></td><td class="metric-val">88%</td><td class="metric-val">89%</td><td class="metric-val">61%</td><td><span class="status-pill pill-red">Below Target</span></td></tr>
+          <tr><td class="sa-name">SA 4 — Faisal Al-Dossari</td><td class="metric-val">124 <span style="color:var(--amber);font-size:10px">(Bud:124)</span></td><td class="metric-val">SAR 67K <span style="color:var(--green);font-size:10px">(+1%)</span></td><td class="metric-val">90%</td><td class="metric-val">94%</td><td class="metric-val">79%</td><td><span class="status-pill pill-amber">Near Target</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="recall-grid">
+      <div class="hbar-card">
+        <h4>RECALL COMPLETION RATE (%)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Recall 1 — Brake Inspection</span><span class="hbar-num" style="color:var(--green)">88%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:88%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Recall 2 — ECU Software</span><span class="hbar-num" style="color:var(--red)">61% ⚠</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:61%;background:var(--red)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Recall 3 — Airbag Module</span><span class="hbar-num" style="color:var(--amber)">74%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:74%;background:var(--amber)"></div></div></div>
+      </div>
+      <div class="hbar-card">
+        <h4>SERVICE MARKETING EFFECTIVENESS (%)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Campaign A — Free Checkup</span><span class="hbar-num" style="color:var(--accent)">83%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:83%;background:var(--accent)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Campaign B — AC Service</span><span class="hbar-num" style="color:var(--amber)">71%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:71%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Campaign C — Loyalty Pack</span><span class="hbar-num" style="color:var(--red)">58%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:58%;background:var(--red)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== -->
+  <!-- === REGIONAL COORDINATOR ====== -->
+  <!-- =============================== -->
+  <div class="panel" id="panel-rsc">
+    <div class="section-header"><h2>REGIONAL SERVICE COORDINATOR</h2><span class="tag">RSM Level — 3 Service Centres</span></div>
+    <div class="region-grid">
+      <div class="region-card clickable" style="border-top:3px solid var(--green)" onclick="drillRegion(&#39;rsc&#39;,&#39;sc1&#39;)">
+        <div class="region-badge">🏆</div>
+        <div class="region-name" style="color:var(--green)">SERVICE CENTRE 1</div>
+        <div class="region-kpi"><div class="region-kpi-label">Productivity</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">89%</div><div class="ytd">YTD: 87% | Bud: 85%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Efficiency</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">93%</div><div class="ytd">YTD: 91% | Bud: 90%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Throughput vs Bud</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">502 / 490</div><div class="ytd">YTD: 4,820 / 4,700</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Revenue vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">SAR 268K / SAR 255K</div><div class="ytd">YTD: SAR 2.55M / SAR 2.46M</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">CSI vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">92% / 91%</div><div class="ytd">YTD: 91%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Recall Completion %</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">88%</div><div class="ytd">YTD: 86% | Bud: 85%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Value Added Sales</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">SAR 36K / SAR 40K</div><div class="ytd">YTD: SAR 343K / SAR 374K</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Expenses vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">SAR 53K / SAR 57K</div><div class="ytd">YTD: SAR 0.48M / SAR 0.53M</div></div></div>
+        <div class="region-drill-hint">↓ Drill Down</div>
+      </div>
+      <div class="region-card clickable" style="border-top:3px solid var(--amber)" onclick="drillRegion(&#39;rsc&#39;,&#39;sc2&#39;)">
+        <div class="region-badge">⚡</div>
+        <div class="region-name" style="color:var(--amber)">SERVICE CENTRE 2</div>
+        <div class="region-kpi"><div class="region-kpi-label">Productivity</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">84%</div><div class="ytd">YTD: 83% | Bud: 85%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Efficiency</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">91%</div><div class="ytd">YTD: 89% | Bud: 90%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Throughput vs Bud</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">468 / 480</div><div class="ytd">YTD: 4,510 / 4,600</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Revenue vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">SAR 238K / SAR 246K</div><div class="ytd">YTD: SAR 2.24M / SAR 2.33M</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">CSI vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">89% / 91%</div><div class="ytd">YTD: 88%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Recall Completion %</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">76%</div><div class="ytd">YTD: 74% | Bud: 85%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Value Added Sales</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">SAR 33K / SAR 37K</div><div class="ytd">YTD: SAR 299K / SAR 352K</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Expenses vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">SAR 52K / SAR 55K</div><div class="ytd">YTD: SAR 0.48M / SAR 0.53M</div></div></div>
+        <div class="region-drill-hint">↓ Drill Down</div>
+      </div>
+      <div class="region-card clickable" style="border-top:3px solid var(--red)" onclick="drillRegion(&#39;rsc&#39;,&#39;sc3&#39;)">
+        <div class="region-badge">⚠️</div>
+        <div class="region-name" style="color:var(--red)">SERVICE CENTRE 3</div>
+        <div class="region-kpi"><div class="region-kpi-label">Productivity</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">79%</div><div class="ytd">YTD: 80% | Bud: 85%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Efficiency</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">86%</div><div class="ytd">YTD: 85% | Bud: 90%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Throughput vs Bud</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">398 / 460</div><div class="ytd">YTD: 3,820 / 4,400</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Revenue vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">SAR 196K / SAR 229K</div><div class="ytd">YTD: SAR 1.8M / SAR 2.16M</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">CSI vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">86% / 91%</div><div class="ytd">YTD: 85%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Recall Completion %</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">62%</div><div class="ytd">YTD: 64% | Bud: 85%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Value Added Sales</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">SAR 26K / SAR 35K</div><div class="ytd">YTD: SAR 229K / SAR 330K</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Expenses vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">SAR 59K / SAR 53K</div><div class="ytd">YTD: SAR 0.57M / SAR 0.48M</div></div></div>
+        <div class="region-drill-hint">↓ Drill Down</div>
+      </div>
+    </div>
+    <div class="hbar-card">
+      <h4>CENTRE COMPARISON — REVENUE vs BUDGET (SAR 000s MTD)</h4>
+      <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Service Centre 1</span><span class="hbar-num" style="color:var(--green)">SAR 268K / SAR 255K &nbsp;<span class="badge up">+5.2%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--green)"></div></div></div>
+      <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Service Centre 2</span><span class="hbar-num" style="color:var(--amber)">SAR 238K / SAR 246K &nbsp;<span class="badge down">-3.2%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:82%;background:var(--amber)"></div></div></div>
+      <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Service Centre 3</span><span class="hbar-num" style="color:var(--red)">SAR 196K / SAR 229K &nbsp;<span class="badge down">-14.2%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:68%;background:var(--red)"></div></div></div>
+    </div>
+  </div>
+
+  <!-- ========================= -->
+  <!-- ====== GM SERVICE ======= -->
+  <!-- ========================= -->
+  <div class="panel" id="panel-gm">
+    <div class="section-header"><h2>GM SERVICE KPIs</h2><span class="tag">3 Regions — WR / CR / SR</span></div>
+    <div class="region-grid">
+      <div class="region-card clickable" style="border-top:3px solid var(--accent2)" onclick="drillRegion(&#39;gm&#39;,&#39;wr&#39;)">
+        <div class="region-badge">🌏</div>
+        <div class="region-name" style="color:var(--accent2)">REGION — WR</div>
+        <div class="region-kpi"><div class="region-kpi-label">Productivity</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">88%</div><div class="ytd">YTD: 86% | Bud: 85%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Efficiency</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">92%</div><div class="ytd">YTD: 90% | Bud: 90%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Throughput vs Bud</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">1,840 / 1,780</div><div class="ytd">YTD: 17,500 / 17,100</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Revenue vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">SAR 0.96M / SAR 0.92M</div><div class="ytd">YTD: SAR 9.02M / SAR 8.8M</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">CSI vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">92% / 91%</div><div class="ytd">YTD: 91%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Recall Completion %</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">84%</div><div class="ytd">YTD: 82% | Bud: 80%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Delivery Adherence %</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">95%</div><div class="ytd">YTD: 93% | Bud: 92%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Division Profit</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--green)">SAR 167K / SAR 154K</div><div class="ytd">YTD: SAR 1.54M / SAR 1.45M</div></div></div>
+        <div class="region-drill-hint">↓ Drill Down</div>
+      </div>
+      <div class="region-card clickable" style="border-top:3px solid var(--amber)" onclick="drillRegion(&#39;gm&#39;,&#39;cr&#39;)">
+        <div class="region-badge">🌿</div>
+        <div class="region-name" style="color:var(--amber)">REGION — CR</div>
+        <div class="region-kpi"><div class="region-kpi-label">Productivity</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">83%</div><div class="ytd">YTD: 83% | Bud: 85%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Efficiency</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">88%</div><div class="ytd">YTD: 87% | Bud: 90%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Throughput vs Bud</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">1,680 / 1,720</div><div class="ytd">YTD: 16,100 / 16,500</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Revenue vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">SAR 0.86M / SAR 0.88M</div><div class="ytd">YTD: SAR 8.1M / SAR 8.36M</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">CSI vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">89% / 91%</div><div class="ytd">YTD: 88%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Recall Completion %</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">72%</div><div class="ytd">YTD: 70% | Bud: 80%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Delivery Adherence %</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">91%</div><div class="ytd">YTD: 89% | Bud: 92%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Division Profit</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--amber)">SAR 123K / SAR 141K</div><div class="ytd">YTD: SAR 1.14M / SAR 1.32M</div></div></div>
+        <div class="region-drill-hint">↓ Drill Down</div>
+      </div>
+      <div class="region-card clickable" style="border-top:3px solid var(--red)" onclick="drillRegion(&#39;gm&#39;,&#39;sr&#39;)">
+        <div class="region-badge">⚠️</div>
+        <div class="region-name" style="color:var(--red)">REGION — SR</div>
+        <div class="region-kpi"><div class="region-kpi-label">Productivity</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">78%</div><div class="ytd">YTD: 79% | Bud: 85%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Efficiency</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">83%</div><div class="ytd">YTD: 82% | Bud: 90%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Throughput vs Bud</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">1,420 / 1,680</div><div class="ytd">YTD: 13,600 / 16,100</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Revenue vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">SAR 0.7M / SAR 0.84M</div><div class="ytd">YTD: SAR 6.51M / SAR 7.92M</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">CSI vs Budget</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">85% / 91%</div><div class="ytd">YTD: 84%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Recall Completion %</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">58%</div><div class="ytd">YTD: 56% | Bud: 80%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Delivery Adherence %</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">84%</div><div class="ytd">YTD: 82% | Bud: 92%</div></div></div>
+        <div class="region-kpi"><div class="region-kpi-label">Division Profit</div><div class="region-kpi-vals"><div class="mtd" style="color:var(--red)">SAR 79K / SAR 132K</div><div class="ytd">YTD: SAR 0.7M / SAR 1.23M</div></div></div>
+        <div class="region-drill-hint">↓ Drill Down</div>
+      </div>
+    </div>
+    <div class="hbar-card">
+      <h4>REGION PROFIT COMPARISON — ACTUAL vs BUDGET (SAR 000s MTD)</h4>
+      <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region WR</span><span class="hbar-num" style="color:var(--green)">SAR 167K / SAR 154K &nbsp;<span class="badge up">+8.6%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--green)"></div></div></div>
+      <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region CR</span><span class="hbar-num" style="color:var(--amber)">SAR 123K / SAR 141K &nbsp;<span class="badge down">-12.5%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:74%;background:var(--amber)"></div></div></div>
+      <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region SR</span><span class="hbar-num" style="color:var(--red)">SAR 79K / SAR 132K &nbsp;<span class="badge down">-40.0%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:47%;background:var(--red)"></div></div></div>
+    </div>
+  </div>
+
+  <!-- ========================= -->
+  <!-- ======= DIRECTOR ======== -->
+  <!-- ========================= -->
+  <div class="panel" id="panel-dir">
+    <div class="section-header"><h2>DIRECTOR — SERVICE DIVISION</h2><span class="tag">Combined All Regions — March 2026</span></div>
+    <div class="kpi-grid">
+      <div class="kpi-card green clickable" onclick="drillKPI(&#39;dir&#39;,&#39;productivity&#39;)">
+        <div class="kpi-label">Combined Productivity</div><div class="kpi-value">83<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub"><span class="badge down">Bud: 85%</span><span class="badge neutral">YTD: 83%</span></div>
+      </div>
+      <div class="kpi-card blue clickable" onclick="drillKPI(&#39;dir&#39;,&#39;efficiency&#39;)">
+        <div class="kpi-label">Combined Efficiency</div><div class="kpi-value">88<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub"><span class="badge down">Bud: 90%</span><span class="badge neutral">YTD: 86%</span></div>
+      </div>
+      <div class="kpi-card amber clickable" onclick="drillKPI(&#39;dir&#39;,&#39;throughput&#39;)">
+        <div class="kpi-label">Combined Throughput</div><div class="kpi-value">4,940</div>
+        <div class="kpi-sub"><span class="badge down">Bud: 5,180</span><span class="badge down">▼ -4.6%</span></div>
+      </div>
+      <div class="kpi-card gold clickable" onclick="drillKPI(&#39;dir&#39;,&#39;revenue&#39;)">
+        <div class="kpi-label">Combined Revenue</div><div class="kpi-value">SAR 2.53<span class="kpi-unit">M</span></div>
+        <div class="kpi-sub"><span class="badge down">Bud: SAR 2.64M</span><span class="badge down">▼ -4.3%</span></div>
+      </div>
+      <div class="kpi-card amber clickable" onclick="drillKPI(&#39;dir&#39;,&#39;csi&#39;)">
+        <div class="kpi-label">Combined CSI</div><div class="kpi-value">89<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub"><span class="badge down">Bud: 91%</span><span class="badge neutral">YTD: 88%</span></div>
+      </div>
+      <div class="kpi-card red clickable" onclick="drillKPI(&#39;dir&#39;,&#39;recall&#39;)">
+        <div class="kpi-label">Recall Completion</div><div class="kpi-value">74<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub"><span class="badge down">Bud: 90%</span><span class="badge down">⚠ Action</span></div>
+      </div>
+      <div class="kpi-card red clickable" onclick="drillKPI(&#39;dir&#39;,&#39;marketing&#39;)">
+        <div class="kpi-label">Marketing Effectiveness</div><div class="kpi-value">71<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub"><span class="badge down">Bud: 82%</span><span class="badge down">▼ -11%</span></div>
+      </div>
+      <div class="kpi-card green clickable" onclick="drillKPI(&#39;dir&#39;,&#39;expenses&#39;)">
+        <div class="kpi-label">Expenses vs Budget</div><div class="kpi-value">SAR 0.55<span class="kpi-unit">M</span></div>
+        <div class="kpi-sub"><span class="badge neutral">Bud: SAR 0.55M</span><span class="badge up">= On Bud</span></div>
+      </div>
+      <div class="kpi-card amber clickable" onclick="drillKPI(&#39;dir&#39;,&#39;profit&#39;)">
+        <div class="kpi-label">Division Profit</div><div class="kpi-value">SAR 370<span class="kpi-unit">K</span></div>
+        <div class="kpi-sub"><span class="badge down">Bud: SAR 427K</span><span class="badge down">▼ -13.4%</span></div>
+      </div>
+    </div>
+    <div class="hbar-card">
+      <h4>REGION PROFIT COMPARISON — ACTUAL vs BUDGET (SAR 000s MTD)</h4>
+      <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region WR</span><span class="hbar-num" style="color:var(--green)">SAR 167K / SAR 154K &nbsp;<span class="badge up">+8.6%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--green)"></div></div></div>
+      <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region CR</span><span class="hbar-num" style="color:var(--amber)">SAR 123K / SAR 141K &nbsp;<span class="badge down">-12.5%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:74%;background:var(--amber)"></div></div></div>
+      <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region SR</span><span class="hbar-num" style="color:var(--red)">SAR 79K / SAR 132K &nbsp;<span class="badge down">-40.0%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:47%;background:var(--red)"></div></div></div>
+    </div>
+  </div>
+
+  <!-- =============================== -->
+  <!-- ====== DRILL-DOWN PANELS ====== -->
+  <!-- =============================== -->
+
+  <!-- Director KPI Drills -->
+  <div class="drill-panel" id="drill-dir-productivity">
+    <div class="drill-header">
+      <div><div class="drill-title">PRODUCTIVITY — REGION BREAKDOWN</div><div class="drill-subtitle">Director View → Region Detail | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to Director</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">⚡ <strong>Combined: 83%</strong> vs Budget 85% — Region WR is the top performer at 88%, while Region SR at 78% is pulling the combined average down by ~3pp. Immediate intervention required in SR.</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">Region WR</div><div class="mini-kpi-val" style="color:var(--green)">88%</div><div class="mini-kpi-sub">Bud: 85% ▲ +3pp</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Region CR</div><div class="mini-kpi-val" style="color:var(--amber)">83%</div><div class="mini-kpi-sub">Bud: 85% ▼ -2pp</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Region SR</div><div class="mini-kpi-val" style="color:var(--red)">78%</div><div class="mini-kpi-sub">Bud: 85% ▼ -7pp</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">YTD Combined</div><div class="mini-kpi-val" style="color:var(--amber)">83%</div><div class="mini-kpi-sub">Budget: 85%</div></div>
+      </div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>PRODUCTIVITY — REGION vs BUDGET (%)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region WR</span><span class="hbar-num" style="color:var(--green)">88% <span class="vs">▲ vs Bud 85%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:88%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region CR</span><span class="hbar-num" style="color:var(--amber)">83% <span class="vs">▼ vs Bud 85%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:83%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region SR</span><span class="hbar-num" style="color:var(--red)">78% <span class="vs">▼ vs Bud 85%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:78%;background:var(--red)"></div></div></div>
+        <div class="hbar-row" style="margin-top:10px;border-top:1px solid var(--border);padding-top:12px"><div class="hbar-meta"><span class="hbar-name" style="font-weight:700;color:var(--text)">SC1 (under WR)</span><span class="hbar-num" style="color:var(--green)">89%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:89%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name" style="font-weight:700;color:var(--text)">SC2 (under WR)</span><span class="hbar-num" style="color:var(--amber)">84%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:84%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name" style="font-weight:700;color:var(--text)">SC3 (under WR)</span><span class="hbar-num" style="color:var(--red)">79%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:79%;background:var(--red)"></div></div></div>
+        <div class="hbar-row" style="margin-top:6px"><div class="hbar-meta"><span class="hbar-name">SA 1 — Abdullah</span><span class="hbar-num" style="color:var(--green)">148 units (Bud 140)</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:96%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 3 — Khalid ⚠</span><span class="hbar-num" style="color:var(--red)">98 units (Bud 120)</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:64%;background:var(--red)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel active" id="drill-dir-revenue">
+    <div class="drill-header">
+      <div><div class="drill-title">REVENUE — FULL HIERARCHY BREAKDOWN</div><div class="drill-subtitle">Director View → Region → Centre → SA | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to Director</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">💰 <strong>Combined: SAR 2.53M</strong> vs Budget SAR 2.64M (▼ -4.3%). WR Region exceeds budget; SR Region is the critical underperformer at SAR 0.7M vs SAR 0.84M budget (–16.7%).</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">Region WR</div><div class="mini-kpi-val" style="color:var(--green)">0.96M</div><div class="mini-kpi-sub">Bud: 0.92M ▲ +4.3%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Region CR</div><div class="mini-kpi-val" style="color:var(--amber)">0.86M</div><div class="mini-kpi-sub">Bud: 0.88M ▼ -2.3%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Region SR</div><div class="mini-kpi-val" style="color:var(--red)">0.70M</div><div class="mini-kpi-sub">Bud: 0.84M ▼ -16.7%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Total</div><div class="mini-kpi-val" style="color:var(--amber)">2.53M</div><div class="mini-kpi-sub">Bud: 2.64M SAR</div></div>
+      </div>
+      <div class="hbar-grid">
+        <div class="hbar-card">
+          <h4>REGION REVENUE (SAR MTD)</h4>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region WR</span><span class="hbar-num" style="color:var(--green)">SAR 0.96M <span class="vs">Bud: 0.92M</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--green)"></div></div></div>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region CR</span><span class="hbar-num" style="color:var(--amber)">SAR 0.86M <span class="vs">Bud: 0.88M</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:90%;background:var(--amber)"></div></div></div>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region SR</span><span class="hbar-num" style="color:var(--red)">SAR 0.70M <span class="vs">Bud: 0.84M</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:73%;background:var(--red)"></div></div></div>
+        </div>
+        <div class="hbar-card">
+          <h4>SERVICE CENTRE REVENUE (SAR MTD)</h4>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC1</span><span class="hbar-num" style="color:var(--green)">SAR 268K <span class="vs">Bud: 255K ▲+5.2%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--green)"></div></div></div>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC2</span><span class="hbar-num" style="color:var(--amber)">SAR 238K <span class="vs">Bud: 246K ▼-3.2%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:89%;background:var(--amber)"></div></div></div>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC3</span><span class="hbar-num" style="color:var(--red)">SAR 196K <span class="vs">Bud: 229K ▼-14.2%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:73%;background:var(--red)"></div></div></div>
+        </div>
+      </div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>SA-LEVEL REVENUE — BOTTOM-UP VIEW (SAR 000s MTD)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 1 — Abdullah Al-Harbi</span><span class="hbar-num" style="color:var(--green)">SAR 81K <span class="vs">▲ +6%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 2 — Mohammed Al-Qahtani</span><span class="hbar-num" style="color:var(--green)">SAR 71K <span class="vs">▲ +3%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:88%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 4 — Faisal Al-Dossari</span><span class="hbar-num" style="color:var(--amber)">SAR 67K <span class="vs">▲ +1%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:83%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 3 — Khalid Al-Otaibi ⚠</span><span class="hbar-num" style="color:var(--red)">SAR 49K <span class="vs">▼ -18%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:60%;background:var(--red)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-dir-recall">
+    <div class="drill-header">
+      <div><div class="drill-title">RECALL COMPLETION — REGION &amp; CENTRE BREAKDOWN</div><div class="drill-subtitle">Director View → Full Hierarchy | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to Director</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">⚠️ <strong>Combined Recall: 74%</strong> vs Budget 90% — Critical gap of 16pp. Region SR at 58% is the primary concern. ECU Software recall (Recall 2) is at only 61% completion across all centres.</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">Region WR</div><div class="mini-kpi-val" style="color:var(--green)">84%</div><div class="mini-kpi-sub">Bud: 80% ▲ +4pp</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Region CR</div><div class="mini-kpi-val" style="color:var(--amber)">72%</div><div class="mini-kpi-sub">Bud: 80% ▼ -8pp</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Region SR</div><div class="mini-kpi-val" style="color:var(--red)">58%</div><div class="mini-kpi-sub">Bud: 80% ▼ -22pp</div></div>
+      </div>
+      <div class="hbar-grid">
+        <div class="hbar-card">
+          <h4>RECALL BY REGION (%)</h4>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region WR</span><span class="hbar-num" style="color:var(--green)">84%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:84%;background:var(--green)"></div></div></div>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region CR</span><span class="hbar-num" style="color:var(--amber)">72%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:72%;background:var(--amber)"></div></div></div>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region SR</span><span class="hbar-num" style="color:var(--red)">58% ⚠</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:58%;background:var(--red)"></div></div></div>
+        </div>
+        <div class="hbar-card">
+          <h4>RECALL BY CENTRE (%)</h4>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC1</span><span class="hbar-num" style="color:var(--green)">88%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:88%;background:var(--green)"></div></div></div>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC2</span><span class="hbar-num" style="color:var(--amber)">76%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:76%;background:var(--amber)"></div></div></div>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC3</span><span class="hbar-num" style="color:var(--red)">62% ⚠</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:62%;background:var(--red)"></div></div></div>
+        </div>
+      </div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>RECALL BY TYPE — ACROSS ALL CENTRES (%)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Recall 1 — Brake Inspection</span><span class="hbar-num" style="color:var(--green)">88%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:88%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Recall 2 — ECU Software ⚠ PRIORITY</span><span class="hbar-num" style="color:var(--red)">61%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:61%;background:var(--red)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Recall 3 — Airbag Module</span><span class="hbar-num" style="color:var(--amber)">74%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:74%;background:var(--amber)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-dir-profit">
+    <div class="drill-header">
+      <div><div class="drill-title">DIVISION PROFIT — HIERARCHY BREAKDOWN</div><div class="drill-subtitle">Director View → Region → Centre | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to Director</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">📊 <strong>Combined Profit: SAR 370K</strong> vs Budget SAR 427K (▼ -13.4%). Region WR is the standout performer (+8.6% above budget). SR region requires immediate corrective action — 40% below budget.</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">WR Profit</div><div class="mini-kpi-val" style="color:var(--green)">167K</div><div class="mini-kpi-sub">Bud: 154K ▲ +8.6%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">CR Profit</div><div class="mini-kpi-val" style="color:var(--amber)">123K</div><div class="mini-kpi-sub">Bud: 141K ▼ -12.5%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">SR Profit</div><div class="mini-kpi-val" style="color:var(--red)">79K</div><div class="mini-kpi-sub">Bud: 132K ▼ -40%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Total</div><div class="mini-kpi-val" style="color:var(--amber)">369K</div><div class="mini-kpi-sub">SAR — MTD</div></div>
+      </div>
+      <div class="hbar-card" style="margin-bottom:16px">
+        <h4>PROFIT BY REGION — ACTUAL vs BUDGET (%)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region WR</span><span class="hbar-num" style="color:var(--green)">SAR 167K / SAR 154K &nbsp;<span class="badge up">+8.6%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region CR</span><span class="hbar-num" style="color:var(--amber)">SAR 123K / SAR 141K &nbsp;<span class="badge down">-12.5%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:74%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Region SR</span><span class="hbar-num" style="color:var(--red)">SAR 79K / SAR 132K &nbsp;<span class="badge down">-40.0%</span></span></div><div class="hbar-bg"><div class="hbar-fg" style="width:47%;background:var(--red)"></div></div></div>
+      </div>
+      <div class="table-wrap" style="margin-bottom:0">
+        <div class="table-head"><h3>PROFIT DRIVERS — SR REGION ANALYSIS</h3></div>
+        <table>
+          <thead><tr><th>Driver</th><th>Actual MTD</th><th>Budget MTD</th><th>Variance</th><th>Impact</th></tr></thead>
+          <tbody>
+            <tr><td class="sa-name">Revenue Shortfall</td><td class="metric-val">SAR 0.70M</td><td class="metric-val">SAR 0.84M</td><td class="metric-val" style="color:var(--red)">▼ -SAR 140K</td><td><span class="status-pill pill-red">Critical</span></td></tr>
+            <tr><td class="sa-name">Productivity Gap (78% vs 85%)</td><td class="metric-val">1,420 units</td><td class="metric-val">1,680 units</td><td class="metric-val" style="color:var(--red)">▼ -260 units</td><td><span class="status-pill pill-red">Critical</span></td></tr>
+            <tr><td class="sa-name">Expenses Overrun</td><td class="metric-val">SAR 202K</td><td class="metric-val">SAR 176K</td><td class="metric-val" style="color:var(--red)">▲ +SAR 26K</td><td><span class="status-pill pill-amber">Moderate</span></td></tr>
+            <tr><td class="sa-name">VAS Under-delivery</td><td class="metric-val">SAR 70K</td><td class="metric-val">SAR 106K</td><td class="metric-val" style="color:var(--red)">▼ -SAR 36K</td><td><span class="status-pill pill-red">Critical</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-dir-efficiency">
+    <div class="drill-header">
+      <div><div class="drill-title">EFFICIENCY — REGION BREAKDOWN</div><div class="drill-subtitle">Director View → Region → Centre | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to Director</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">🔵 <strong>Combined Efficiency: 88%</strong> vs Budget 90% — Region WR leads at 92%. Region SR at 83% is 7pp below target, indicating a workshop utilisation issue.</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">Region WR</div><div class="mini-kpi-val" style="color:var(--green)">92%</div><div class="mini-kpi-sub">Bud: 90% ▲ +2pp</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Region CR</div><div class="mini-kpi-val" style="color:var(--amber)">88%</div><div class="mini-kpi-sub">Bud: 90% ▼ -2pp</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Region SR</div><div class="mini-kpi-val" style="color:var(--red)">83%</div><div class="mini-kpi-sub">Bud: 90% ▼ -7pp</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">SC1 / SC2 / SC3</div><div class="mini-kpi-val" style="color:var(--text)">93/91/86</div><div class="mini-kpi-sub">Centre breakdown</div></div>
+      </div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>EFFICIENCY — FULL DRILL (Region → Centre → SA)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">WR Region</span><span class="hbar-num" style="color:var(--green)">92% vs Bud 90%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:92%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC1 (Best Centre)</span><span class="hbar-num" style="color:var(--green)">93%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:93%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC2</span><span class="hbar-num" style="color:var(--green)">91%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:91%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC3 (Needs Attention)</span><span class="hbar-num" style="color:var(--amber)">86%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:86%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 1 — Abdullah Al-Harbi</span><span class="hbar-num" style="color:var(--green)">95% (Est.)</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:95%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 3 — Khalid ⚠</span><span class="hbar-num" style="color:var(--red)">79% (Est.)</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:79%;background:var(--red)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-dir-csi">
+    <div class="drill-header">
+      <div><div class="drill-title">CSI — CUSTOMER SATISFACTION BREAKDOWN</div><div class="drill-subtitle">Director View → Region → SA Level | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to Director</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">⭐ <strong>Combined CSI: 89%</strong> vs Budget 91%. Region SR at 85% is dragging the combined score. SA 1 leads the field at 93% — best practice to be shared across all advisors.</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">Region WR</div><div class="mini-kpi-val" style="color:var(--green)">92%</div><div class="mini-kpi-sub">Bud: 91% ▲</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Region CR</div><div class="mini-kpi-val" style="color:var(--amber)">89%</div><div class="mini-kpi-sub">Bud: 91% ▼</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Region SR</div><div class="mini-kpi-val" style="color:var(--red)">85%</div><div class="mini-kpi-sub">Bud: 91% ▼ -6pp</div></div>
+      </div>
+      <div class="table-wrap" style="margin-bottom:0">
+        <div class="table-head"><h3>CSI BY SERVICE ADVISOR</h3></div>
+        <table>
+          <thead><tr><th>Service Advisor</th><th>CSI MTD</th><th>Budget</th><th>YTD</th><th>Delivery Adh.</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="sa-name">SA 1 — Abdullah Al-Harbi</td><td class="metric-val" style="color:var(--green)">93%</td><td class="metric-val">91%</td><td class="metric-val">92%</td><td class="metric-val">97%</td><td><span class="status-pill pill-green">Exceeding</span></td></tr>
+            <tr><td class="sa-name">SA 2 — Mohammed Al-Qahtani</td><td class="metric-val" style="color:var(--green)">91%</td><td class="metric-val">91%</td><td class="metric-val">90%</td><td class="metric-val">95%</td><td><span class="status-pill pill-green">On Target</span></td></tr>
+            <tr><td class="sa-name">SA 4 — Faisal Al-Dossari</td><td class="metric-val" style="color:var(--amber)">90%</td><td class="metric-val">91%</td><td class="metric-val">89%</td><td class="metric-val">94%</td><td><span class="status-pill pill-amber">Near Target</span></td></tr>
+            <tr><td class="sa-name">SA 3 — Khalid Al-Otaibi</td><td class="metric-val" style="color:var(--red)">88%</td><td class="metric-val">91%</td><td class="metric-val">87%</td><td class="metric-val">89%</td><td><span class="status-pill pill-red">Below Target</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-dir-throughput">
+    <div class="drill-header">
+      <div><div class="drill-title">THROUGHPUT — FULL HIERARCHY BREAKDOWN</div><div class="drill-subtitle">Director → Region → Centre → SA | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to Director</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">🔩 <strong>Combined Throughput: 4,940 units</strong> vs Budget 5,180 (▼ -4.6%). WR exceeds budget; SR missing by 260 units (–15.5%). At SA level, Khalid Al-Otaibi is 22 units below individual budget.</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">WR Throughput</div><div class="mini-kpi-val" style="color:var(--green)">1,840</div><div class="mini-kpi-sub">Bud: 1,780 ▲ +3.4%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">CR Throughput</div><div class="mini-kpi-val" style="color:var(--amber)">1,680</div><div class="mini-kpi-sub">Bud: 1,720 ▼ -2.3%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">SR Throughput</div><div class="mini-kpi-val" style="color:var(--red)">1,420</div><div class="mini-kpi-sub">Bud: 1,680 ▼ -15.5%</div></div>
+      </div>
+      <div class="hbar-grid">
+        <div class="hbar-card">
+          <h4>THROUGHPUT BY REGION</h4>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">WR Region</span><span class="hbar-num" style="color:var(--green)">1,840 / Bud 1,780</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--green)"></div></div></div>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">CR Region</span><span class="hbar-num" style="color:var(--amber)">1,680 / Bud 1,720</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:91%;background:var(--amber)"></div></div></div>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SR Region</span><span class="hbar-num" style="color:var(--red)">1,420 / Bud 1,680</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:77%;background:var(--red)"></div></div></div>
+        </div>
+        <div class="hbar-card">
+          <h4>THROUGHPUT BY CENTRE</h4>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC1</span><span class="hbar-num" style="color:var(--green)">502 / Bud 490 ▲</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--green)"></div></div></div>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC2</span><span class="hbar-num" style="color:var(--amber)">468 / Bud 480 ▼</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:93%;background:var(--amber)"></div></div></div>
+          <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC3</span><span class="hbar-num" style="color:var(--red)">398 / Bud 460 ▼</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:79%;background:var(--red)"></div></div></div>
+        </div>
+      </div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>THROUGHPUT BY SERVICE ADVISOR (MTD)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 1 — Abdullah Al-Harbi</span><span class="hbar-num" style="color:var(--green)">148 units (Bud 140) ▲+8</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 2 — Mohammed Al-Qahtani</span><span class="hbar-num" style="color:var(--green)">132 units (Bud 130) ▲+2</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:89%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 4 — Faisal Al-Dossari</span><span class="hbar-num" style="color:var(--amber)">124 units (Bud 124) =</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:84%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 3 — Khalid Al-Otaibi ⚠</span><span class="hbar-num" style="color:var(--red)">98 units (Bud 120) ▼-22</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:66%;background:var(--red)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-dir-marketing">
+    <div class="drill-header">
+      <div><div class="drill-title">MARKETING EFFECTIVENESS — BREAKDOWN</div><div class="drill-subtitle">Director View → Campaign → Region | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to Director</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">📣 <strong>Combined Marketing Eff.: 71%</strong> vs Budget 82% — A significant 11pp gap. Campaign C (Loyalty Pack) at 58% is the worst performer. Region SR shows the weakest marketing uptake at 56%.</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">Region WR</div><div class="mini-kpi-val" style="color:var(--green)">76%</div><div class="mini-kpi-sub">Bud: 75% ▲</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Region CR</div><div class="mini-kpi-val" style="color:var(--amber)">68%</div><div class="mini-kpi-sub">Bud: 75% ▼</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Region SR</div><div class="mini-kpi-val" style="color:var(--red)">56%</div><div class="mini-kpi-sub">Bud: 75% ▼ -19pp</div></div>
+      </div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>CAMPAIGN PERFORMANCE BY REGION</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Campaign A — Free Checkup (WR)</span><span class="hbar-num" style="color:var(--accent)">83%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:83%;background:var(--accent)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Campaign B — AC Service (All)</span><span class="hbar-num" style="color:var(--amber)">71%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:71%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Campaign C — Loyalty Pack (All)</span><span class="hbar-num" style="color:var(--red)">58% ⚠</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:58%;background:var(--red)"></div></div></div>
+        <div class="hbar-row" style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px"><div class="hbar-meta"><span class="hbar-name">SC1 Marketing</span><span class="hbar-num" style="color:var(--green)">78% vs Bud 75%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:78%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC2 Marketing</span><span class="hbar-num" style="color:var(--amber)">69% vs Bud 75%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:69%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC3 Marketing</span><span class="hbar-num" style="color:var(--red)">58% vs Bud 75%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:58%;background:var(--red)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-dir-expenses">
+    <div class="drill-header">
+      <div><div class="drill-title">EXPENSES — REGION &amp; COST BREAKDOWN</div><div class="drill-subtitle">Director View → Region → Cost Category | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to Director</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">✅ <strong>Combined Expenses: SAR 0.55M</strong> — On budget overall. However Region SR is 14.8% over-budget (SAR 202K vs SAR 176K), primarily driven by labour and overhead overruns.</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">WR Expenses</div><div class="mini-kpi-val" style="color:var(--green)">185K</div><div class="mini-kpi-sub">Bud: 198K ▲ Under</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">CR Expenses</div><div class="mini-kpi-val" style="color:var(--green)">167K</div><div class="mini-kpi-sub">Bud: 180K ▲ Under</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">SR Expenses</div><div class="mini-kpi-val" style="color:var(--red)">202K</div><div class="mini-kpi-sub">Bud: 176K ▼ Over</div></div>
+      </div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>EXPENSE CATEGORIES — WORKSHOP BREAKDOWN (SAR 000s)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Labour Cost</span><span class="hbar-num" style="color:var(--green)">SAR 62K vs Bud SAR 66K</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:94%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Parts &amp; Consumables</span><span class="hbar-num" style="color:var(--green)">SAR 56K vs Bud SAR 57K</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:98%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Equipment &amp; Tools</span><span class="hbar-num" style="color:var(--amber)">SAR 25K vs Bud SAR 24K ▲</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Overheads</span><span class="hbar-num" style="color:var(--green)">SAR 21K vs Bud SAR 22K</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:95%;background:var(--green)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SM KPI Drills -->
+  <div class="drill-panel" id="drill-sm-productivity">
+    <div class="drill-header">
+      <div><div class="drill-title">PRODUCTIVITY DRILL — SA BREAKDOWN</div><div class="drill-subtitle">Service Manager → Individual Advisor Level | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to SM Dashboard</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">⚡ <strong>Workshop Productivity: 87%</strong> (Budget 85%) — Overall on track. SA 3 (Khalid) is significantly under at 82 units below potential, dragging the workshop average down.</div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>PRODUCTIVITY BY ADVISOR (Units Billed / Clocked Hours)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 1 — Abdullah Al-Harbi</span><span class="hbar-num" style="color:var(--green)">148 units — 92% productivity</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:92%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 2 — Mohammed Al-Qahtani</span><span class="hbar-num" style="color:var(--green)">132 units — 88% productivity</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:88%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 4 — Faisal Al-Dossari</span><span class="hbar-num" style="color:var(--amber)">124 units — 86% productivity</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:86%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 3 — Khalid Al-Otaibi ⚠</span><span class="hbar-num" style="color:var(--red)">98 units — 79% productivity</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:79%;background:var(--red)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-sm-csi">
+    <div class="drill-header">
+      <div><div class="drill-title">CSI SCORE DRILL — SA BREAKDOWN</div><div class="drill-subtitle">Service Manager → Individual Advisor Level | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to SM Dashboard</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">⭐ <strong>CSI: 91%</strong> (at budget). SA 1 is the star performer at 93%. SA 3 at 88% needs coaching on delivery quality and customer communication.</div>
+      <div class="table-wrap" style="margin-bottom:0">
+        <div class="table-head"><h3>CSI SCORE BY SERVICE ADVISOR</h3></div>
+        <table>
+          <thead><tr><th>SA Name</th><th>CSI MTD</th><th>Budget</th><th>Delivery Adh.</th><th>Follow-up Rate</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="sa-name">SA 1 — Abdullah</td><td class="metric-val" style="color:var(--green)">93%</td><td class="metric-val">91%</td><td class="metric-val">97%</td><td class="metric-val">96%</td><td><span class="status-pill pill-green">Exceeding</span></td></tr>
+            <tr><td class="sa-name">SA 2 — Mohammed</td><td class="metric-val" style="color:var(--green)">91%</td><td class="metric-val">91%</td><td class="metric-val">95%</td><td class="metric-val">92%</td><td><span class="status-pill pill-green">On Target</span></td></tr>
+            <tr><td class="sa-name">SA 4 — Faisal</td><td class="metric-val" style="color:var(--amber)">90%</td><td class="metric-val">91%</td><td class="metric-val">94%</td><td class="metric-val">89%</td><td><span class="status-pill pill-amber">Near Target</span></td></tr>
+            <tr><td class="sa-name">SA 3 — Khalid ⚠</td><td class="metric-val" style="color:var(--red)">88%</td><td class="metric-val">91%</td><td class="metric-val">89%</td><td class="metric-val">81%</td><td><span class="status-pill pill-red">Below Target</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-sm-vas">
+    <div class="drill-header">
+      <div><div class="drill-title">VALUE ADDED SALES DRILL — SA BREAKDOWN</div><div class="drill-subtitle">Service Manager → Advisor Level | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to SM Dashboard</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">💡 <strong>VAS Total: SAR 94K</strong> vs Budget SAR 110K (▼ -14.5%). SA 1 leads but all advisors are under-performing on upselling. SA 3 at SAR 18K is 36% below individual target.</div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>VALUE ADDED SALES — SA BREAKDOWN (SAR 000s MTD)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 1 — Abdullah Al-Harbi</span><span class="hbar-num" style="color:var(--green)">SAR 30K vs Bud SAR 28K ▲+7%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 2 — Mohammed Al-Qahtani</span><span class="hbar-num" style="color:var(--amber)">SAR 26K vs Bud SAR 27K ▼-4%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:87%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 4 — Faisal Al-Dossari</span><span class="hbar-num" style="color:var(--amber)">SAR 20K vs Bud SAR 27K ▼-26%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:67%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 3 — Khalid Al-Otaibi ⚠</span><span class="hbar-num" style="color:var(--red)">SAR 18K vs Bud SAR 28K ▼-36%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:60%;background:var(--red)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-sm-marketing">
+    <div class="drill-header">
+      <div><div class="drill-title">MARKETING EFFECTIVENESS DRILL</div><div class="drill-subtitle">Service Manager → Campaign Level | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to SM Dashboard</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">📣 <strong>Marketing Eff.: 71%</strong> vs Budget 82%. Campaign C (Loyalty Pack) is the major drag. Recommend reviewing loyalty pack proposition and targeting high-frequency customers.</div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>CAMPAIGN PERFORMANCE (%)</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Campaign A — Free Checkup</span><span class="hbar-num" style="color:var(--accent)">83% vs Bud 80%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:83%;background:var(--accent)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Campaign B — AC Service</span><span class="hbar-num" style="color:var(--amber)">71% vs Bud 80%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:71%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Campaign C — Loyalty Pack ⚠</span><span class="hbar-num" style="color:var(--red)">58% vs Bud 80%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:58%;background:var(--red)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-sm-efficiency"><div class="drill-header"><div><div class="drill-title">EFFICIENCY DRILL — SA LEVEL</div><div class="drill-subtitle">Service Manager View | March 2026</div></div><button class="back-btn" onclick="closeDrill()">← Back</button></div><div class="drill-panel-inner"><div class="insight-box">🔵 <strong>Efficiency: 92%</strong> vs Budget 90% — Above target. SA 1 leads at 95% clocked efficiency. SA 3 at 79% is pulling average down.</div><div class="hbar-card" style="margin-bottom:0"><h4>EFFICIENCY BY SA</h4><div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 1 — Abdullah</span><span class="hbar-num" style="color:var(--green)">~95%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:95%;background:var(--green)"></div></div></div><div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 2 — Mohammed</span><span class="hbar-num" style="color:var(--green)">~92%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:92%;background:var(--green)"></div></div></div><div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 4 — Faisal</span><span class="hbar-num" style="color:var(--amber)">~89%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:89%;background:var(--amber)"></div></div></div><div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 3 — Khalid ⚠</span><span class="hbar-num" style="color:var(--red)">~79%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:79%;background:var(--red)"></div></div></div></div></div></div>
+
+  <div class="drill-panel" id="drill-sm-delivery"><div class="drill-header"><div><div class="drill-title">DELIVERY ADHERENCE DRILL</div><div class="drill-subtitle">Service Manager View | March 2026</div></div><button class="back-btn" onclick="closeDrill()">← Back</button></div><div class="drill-panel-inner"><div class="insight-box">🕐 <strong>Delivery Adherence: 94%</strong> — Above Budget 92%. SA 1 at 97% is exceptional. SA 3 at 89% needs improvement in promised time delivery.</div><div class="hbar-card" style="margin-bottom:0"><h4>DELIVERY ADHERENCE BY SA (%)</h4><div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 1 — Abdullah</span><span class="hbar-num" style="color:var(--green)">97%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:97%;background:var(--green)"></div></div></div><div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 2 — Mohammed</span><span class="hbar-num" style="color:var(--green)">95%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:95%;background:var(--green)"></div></div></div><div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 4 — Faisal</span><span class="hbar-num" style="color:var(--green)">94%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:94%;background:var(--green)"></div></div></div><div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 3 — Khalid ⚠</span><span class="hbar-num" style="color:var(--amber)">89%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:89%;background:var(--amber)"></div></div></div></div></div></div>
+
+  <div class="drill-panel" id="drill-sm-expenses"><div class="drill-header"><div><div class="drill-title">WORKSHOP EXPENSES DRILL</div><div class="drill-subtitle">Service Manager → Cost Category | March 2026</div></div><button class="back-btn" onclick="closeDrill()">← Back</button></div><div class="drill-panel-inner"><div class="insight-box">✅ <strong>Expenses: SAR 164K</strong> vs Budget SAR 169K — Under budget by SAR 5K. Equipment &amp; Tools is the only category slightly over budget (+SAR 1K).</div><div class="hbar-card" style="margin-bottom:0"><h4>EXPENSE BREAKDOWN (SAR 000s MTD)</h4><div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Labour Cost</span><span class="hbar-num" style="color:var(--green)">SAR 62K vs Bud 66K</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:94%;background:var(--green)"></div></div></div><div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Parts &amp; Consumables</span><span class="hbar-num" style="color:var(--green)">SAR 56K vs Bud 57K</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:98%;background:var(--green)"></div></div></div><div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Equipment &amp; Tools</span><span class="hbar-num" style="color:var(--amber)">SAR 25K vs Bud 24K ▲</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--amber)"></div></div></div><div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Overheads</span><span class="hbar-num" style="color:var(--green)">SAR 21K vs Bud 22K</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:95%;background:var(--green)"></div></div></div></div></div></div>
+
+  <!-- RSC Region Drills -->
+  <div class="drill-panel" id="drill-rsc-sc1">
+    <div class="drill-header">
+      <div><div class="drill-title">SERVICE CENTRE 1 — DETAILED BREAKDOWN</div><div class="drill-subtitle">RSC View → SM Level Performance | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to RSC</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">🏆 <strong>Service Centre 1 is the top performer</strong>. Revenue +5.2% above budget, Productivity 89% (Bud 85%), Recall 88% (Bud 85%). Model centre to benchmark best practices across the region.</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">Productivity</div><div class="mini-kpi-val" style="color:var(--green)">89%</div><div class="mini-kpi-sub">Bud: 85% ▲</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Revenue</div><div class="mini-kpi-val" style="color:var(--green)">268K</div><div class="mini-kpi-sub">Bud: 255K ▲ +5.2%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">CSI</div><div class="mini-kpi-val" style="color:var(--green)">92%</div><div class="mini-kpi-sub">Bud: 91% ▲</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Recall</div><div class="mini-kpi-val" style="color:var(--green)">88%</div><div class="mini-kpi-sub">Bud: 85% ▲</div></div>
+      </div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>SC1 — SA LEVEL BREAKDOWN</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 1 — Abdullah Al-Harbi</span><span class="hbar-num" style="color:var(--green)">148 units | SAR 81K | CSI 93%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 2 — Mohammed Al-Qahtani</span><span class="hbar-num" style="color:var(--green)">132 units | SAR 71K | CSI 91%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:89%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 4 — Faisal Al-Dossari</span><span class="hbar-num" style="color:var(--amber)">124 units | SAR 67K | CSI 90%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:84%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 3 — Khalid Al-Otaibi ⚠</span><span class="hbar-num" style="color:var(--red)">98 units | SAR 49K | CSI 88%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:66%;background:var(--red)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-rsc-sc2">
+    <div class="drill-header">
+      <div><div class="drill-title">SERVICE CENTRE 2 — DETAILED BREAKDOWN</div><div class="drill-subtitle">RSC View → SM Level Performance | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to RSC</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">⚡ <strong>SC2 is performing near target</strong>. Revenue slightly below budget (–3.2%). Recall at 76% vs budget 85% needs attention. VAS is the weakest area at SAR 33K vs SAR 37K budget.</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">Productivity</div><div class="mini-kpi-val" style="color:var(--amber)">84%</div><div class="mini-kpi-sub">Bud: 85% ▼</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Revenue</div><div class="mini-kpi-val" style="color:var(--amber)">238K</div><div class="mini-kpi-sub">Bud: 246K ▼ -3.2%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Efficiency</div><div class="mini-kpi-val" style="color:var(--green)">91%</div><div class="mini-kpi-sub">Bud: 90% ▲</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Recall</div><div class="mini-kpi-val" style="color:var(--amber)">76%</div><div class="mini-kpi-sub">Bud: 85% ▼ -9pp</div></div>
+      </div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>SC2 — KEY METRICS BREAKDOWN</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Throughput</span><span class="hbar-num" style="color:var(--amber)">468 vs Bud 480</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:88%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Revenue</span><span class="hbar-num" style="color:var(--amber)">SAR 238K vs SAR 246K</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:90%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">VAS</span><span class="hbar-num" style="color:var(--amber)">SAR 33K vs SAR 37K</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:82%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Recall Completion</span><span class="hbar-num" style="color:var(--amber)">76% vs Bud 85%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:76%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Expenses</span><span class="hbar-num" style="color:var(--green)">SAR 52K vs Bud SAR 55K ✓</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:95%;background:var(--green)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-rsc-sc3">
+    <div class="drill-header">
+      <div><div class="drill-title">SERVICE CENTRE 3 — DETAILED BREAKDOWN</div><div class="drill-subtitle">RSC View → SM Level Performance | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to RSC</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">⚠️ <strong>SC3 requires immediate intervention.</strong> Revenue down 14.2% vs budget. Productivity at 79% (–6pp). Recall at 62% is critically low. Expenses over budget by SAR 6K. Multi-dimensional underperformance.</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">Productivity</div><div class="mini-kpi-val" style="color:var(--red)">79%</div><div class="mini-kpi-sub">Bud: 85% ▼ -6pp</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Revenue</div><div class="mini-kpi-val" style="color:var(--red)">196K</div><div class="mini-kpi-sub">Bud: 229K ▼ -14.2%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Recall</div><div class="mini-kpi-val" style="color:var(--red)">62%</div><div class="mini-kpi-sub">Bud: 85% ▼ -23pp</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Expenses</div><div class="mini-kpi-val" style="color:var(--red)">59K</div><div class="mini-kpi-sub">Bud: 53K ▲ Over</div></div>
+      </div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>SC3 — ALL KPIs vs BUDGET</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Throughput</span><span class="hbar-num" style="color:var(--red)">398 vs Bud 460 ▼-13.5%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:79%;background:var(--red)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Revenue</span><span class="hbar-num" style="color:var(--red)">SAR 196K vs 229K ▼-14.2%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:73%;background:var(--red)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Recall Completion</span><span class="hbar-num" style="color:var(--red)">62% vs Bud 85% ▼-23pp</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:62%;background:var(--red)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">VAS</span><span class="hbar-num" style="color:var(--red)">SAR 26K vs Bud 35K ▼-26%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:74%;background:var(--red)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Marketing Eff.</span><span class="hbar-num" style="color:var(--red)">58% vs Bud 75% ▼-17pp</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:58%;background:var(--red)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">CSI</span><span class="hbar-num" style="color:var(--red)">86% vs Bud 91% ▼-5pp</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:86%;background:var(--amber)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GM Region Drills -->
+  <div class="drill-panel" id="drill-gm-wr">
+    <div class="drill-header">
+      <div><div class="drill-title">REGION WR — FULL BREAKDOWN</div><div class="drill-subtitle">GM View → Centre → SA Level | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to GM Dashboard</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">🌏 <strong>Region WR is the strongest region</strong>. Profit +8.6% above budget (SAR 167K vs 154K). Revenue, productivity and recall all exceed targets. Best practice region to cascade across CR and SR.</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">Revenue</div><div class="mini-kpi-val" style="color:var(--green)">0.96M</div><div class="mini-kpi-sub">Bud: 0.92M ▲</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Profit</div><div class="mini-kpi-val" style="color:var(--green)">167K</div><div class="mini-kpi-sub">Bud: 154K ▲ +8.6%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Productivity</div><div class="mini-kpi-val" style="color:var(--green)">88%</div><div class="mini-kpi-sub">Bud: 85% ▲</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Centres</div><div class="mini-kpi-val" style="color:var(--text)">3</div><div class="mini-kpi-sub">SC1, SC2, SC3</div></div>
+      </div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>WR REGION — CENTRE BREAKDOWN</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC1 — Revenue</span><span class="hbar-num" style="color:var(--green)">SAR 268K vs 255K ▲+5.2%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC2 — Revenue</span><span class="hbar-num" style="color:var(--amber)">SAR 238K vs 246K ▼-3.2%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:89%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SC3 — Revenue</span><span class="hbar-num" style="color:var(--red)">SAR 196K vs 229K ▼-14.2%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:73%;background:var(--red)"></div></div></div>
+        <div class="hbar-row" style="margin-top:10px;border-top:1px solid var(--border);padding-top:12px"><div class="hbar-meta"><span class="hbar-name">SA 1 (Best SA in Region)</span><span class="hbar-num" style="color:var(--green)">148 units | SAR 81K | 93% CSI</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:100%;background:var(--green)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">SA 3 (Needs Coaching)</span><span class="hbar-num" style="color:var(--red)">98 units | SAR 49K | 88% CSI</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:66%;background:var(--red)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-gm-cr">
+    <div class="drill-header">
+      <div><div class="drill-title">REGION CR — FULL BREAKDOWN</div><div class="drill-subtitle">GM View → Centre Performance | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to GM Dashboard</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">🌿 <strong>Region CR — mixed performance</strong>. Revenue is marginally below budget (-2.3%). Recall at 72% vs 80% target needs a focused campaign. VAS at SAR 97K vs SAR 110K target is a gap area.</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">Revenue</div><div class="mini-kpi-val" style="color:var(--amber)">0.86M</div><div class="mini-kpi-sub">Bud: 0.88M ▼</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Profit</div><div class="mini-kpi-val" style="color:var(--amber)">123K</div><div class="mini-kpi-sub">Bud: 141K ▼ -12.5%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Recall</div><div class="mini-kpi-val" style="color:var(--amber)">72%</div><div class="mini-kpi-sub">Bud: 80% ▼ -8pp</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">VAS</div><div class="mini-kpi-val" style="color:var(--amber)">97K</div><div class="mini-kpi-sub">Bud: 110K ▼ -11.8%</div></div>
+      </div>
+      <div class="hbar-card" style="margin-bottom:0">
+        <h4>CR REGION — KEY KPI vs BUDGET</h4>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Productivity</span><span class="hbar-num" style="color:var(--amber)">83% vs Bud 85%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:83%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Revenue</span><span class="hbar-num" style="color:var(--amber)">SAR 0.86M vs 0.88M</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:98%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Recall Completion</span><span class="hbar-num" style="color:var(--amber)">72% vs Bud 80%</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:72%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">VAS</span><span class="hbar-num" style="color:var(--amber)">SAR 97K vs 110K</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:88%;background:var(--amber)"></div></div></div>
+        <div class="hbar-row"><div class="hbar-meta"><span class="hbar-name">Expenses</span><span class="hbar-num" style="color:var(--green)">SAR 167K vs 180K ✓ Under</span></div><div class="hbar-bg"><div class="hbar-fg" style="width:93%;background:var(--green)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drill-panel" id="drill-gm-sr">
+    <div class="drill-header">
+      <div><div class="drill-title">REGION SR — FULL BREAKDOWN ⚠ CRITICAL</div><div class="drill-subtitle">GM View → Performance Deep Dive | March 2026</div></div>
+      <button class="back-btn" onclick="closeDrill()">← Back to GM Dashboard</button>
+    </div>
+    <div class="drill-panel-inner">
+      <div class="insight-box">🔴 <strong>Region SR requires urgent escalation.</strong> Profit SAR 79K vs Budget SAR 132K (–40%). Throughput, revenue, recall, marketing and VAS are ALL below budget. Multi-dimensional failure requiring GM action plan.</div>
+      <div class="mini-kpi-row">
+        <div class="mini-kpi"><div class="mini-kpi-label">Profit</div><div class="mini-kpi-val" style="color:var(--red)">79K</div><div class="mini-kpi-sub">Bud: 132K ▼ -40%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Revenue</div><div class="mini-kpi-val" style="color:var(--red)">0.70M</div><div class="mini-kpi-sub">Bud: 0.84M ▼ -16.7%</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Productivity</div><div class="mini-kpi-val" style="color:var(--red)">78%</div><div class="mini-kpi-sub">Bud: 85% ▼ -7pp</div></div>
+        <div class="mini-kpi"><div class="mini-kpi-label">Expenses</div><div class="mini-kpi-val" style="color:var(--red)">202K</div><div class="mini-kpi-sub">Bud: 176K ▲ Over</div></div>
+      </div>
+      <div class="table-wrap" style="margin-bottom:16px">
+        <div class="table-head"><h3>SR REGION — ALL KPIs vs BUDGET</h3></div>
+        <table>
+          <thead><tr><th>KPI</th><th>Actual MTD</th><th>Budget MTD</th><th>Variance</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="sa-name">Throughput</td><td class="metric-val">1,420 units</td><td class="metric-val">1,680 units</td><td class="metric-val" style="color:var(--red)">▼ -260 (-15.5%)</td><td><span class="status-pill pill-red">Critical</span></td></tr>
+            <tr><td class="sa-name">Revenue</td><td class="metric-val">SAR 0.70M</td><td class="metric-val">SAR 0.84M</td><td class="metric-val" style="color:var(--red)">▼ -SAR 140K (-16.7%)</td><td><span class="status-pill pill-red">Critical</span></td></tr>
+            <tr><td class="sa-name">Productivity</td><td class="metric-val">78%</td><td class="metric-val">85%</td><td class="metric-val" style="color:var(--red)">▼ -7pp</td><td><span class="status-pill pill-red">Critical</span></td></tr>
+            <tr><td class="sa-name">Recall Completion</td><td class="metric-val">58%</td><td class="metric-val">80%</td><td class="metric-val" style="color:var(--red)">▼ -22pp</td><td><span class="status-pill pill-red">Critical</span></td></tr>
+            <tr><td class="sa-name">VAS</td><td class="metric-val">SAR 70K</td><td class="metric-val">SAR 106K</td><td class="metric-val" style="color:var(--red)">▼ -SAR 36K (-34%)</td><td><span class="status-pill pill-red">Critical</span></td></tr>
+            <tr><td class="sa-name">Marketing Eff.</td><td class="metric-val">56%</td><td class="metric-val">75%</td><td class="metric-val" style="color:var(--red)">▼ -19pp</td><td><span class="status-pill pill-red">Critical</span></td></tr>
+            <tr><td class="sa-name">Expenses</td><td class="metric-val">SAR 202K</td><td class="metric-val">SAR 176K</td><td class="metric-val" style="color:var(--red)">▲ +SAR 26K (over)</td><td><span class="status-pill pill-amber">Moderate</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>SERVICE DIVISION — PERFORMANCE MONITORING SYSTEM &nbsp;|&nbsp; DEMO DATA — REPLACE WITH ACTUALS</span>
+    <span>REPORTING PERIOD: MARCH 2026 &nbsp;|&nbsp; MTD / YTD TRACKING</span>
+  </div>
+</div>
+
+<script>
+// --- TAB SWITCHING ---
+function switchTab(tab) {
+  closeDrill(false);
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  const idx = {sm:0,rsc:1,gm:2,dir:3}[tab];
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  updateBreadcrumb([{label: tabLabel(tab)}]);
+  window.scrollTo({top: 0, behavior:'smooth'});
+}
+
+function tabLabel(tab) {
+  return {sm:'Service Manager', rsc:'Regional Coordinator', gm:'GM Service', dir:'Director'}[tab];
+}
+
+// --- BREADCRUMB ---
+let currentTab = 'sm';
+let drillStack = [];
+
+function updateBreadcrumb(stack) {
+  const bc = document.getElementById('breadcrumb');
+  if (!stack || stack.length === 0) { bc.style.display='none'; return; }
+  bc.style.display = 'flex';
+  bc.innerHTML = stack.map((item, i) => {
+    if (i < stack.length - 1) {
+      return `<span class="bc-link" onclick="(${item.onclick})()">${item.label}</span><span class="bc-sep">›</span>`;
+    }
+    return `<span class="bc-current">${item.label}</span>`;
+  }).join('');
+}
+
+// --- DRILL DOWN: KPI CARDS ---
+function drillKPI(tab, kpi) {
+  currentTab = tab;
+  const drillId = 'drill-' + tab + '-' + kpi;
+  const el = document.getElementById(drillId);
+  if (!el) return;
+
+  // Hide main panel
+  document.getElementById('panel-' + tab).classList.remove('active');
+
+  // Close any open drills
+  document.querySelectorAll('.drill-panel').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+  el.scrollIntoView({behavior:'smooth', block:'start'});
+
+  const kpiLabel = el.querySelector('.drill-title').textContent;
+  updateBreadcrumb([
+    {label: tabLabel(tab), onclick: `function(){switchTab('${tab}')}`},
+    {label: kpiLabel}
+  ]);
+}
+
+// --- DRILL DOWN: REGION CARDS ---
+function drillRegion(tab, region) {
+  currentTab = tab;
+  const drillId = 'drill-' + tab + '-' + region;
+  const el = document.getElementById(drillId);
+  if (!el) return;
+
+  document.getElementById('panel-' + tab).classList.remove('active');
+  document.querySelectorAll('.drill-panel').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+  el.scrollIntoView({behavior:'smooth', block:'start'});
+
+  const drillTitle = el.querySelector('.drill-title').textContent;
+  updateBreadcrumb([
+    {label: tabLabel(tab), onclick: `function(){switchTab('${tab}')}`},
+    {label: drillTitle}
+  ]);
+}
+
+// --- CLOSE DRILL ---
+function closeDrill(scroll=true) {
+  document.querySelectorAll('.drill-panel').forEach(d => d.classList.remove('active'));
+  document.getElementById('panel-' + currentTab).classList.add('active');
+  updateBreadcrumb([{label: tabLabel(currentTab)}]);
+  if (scroll) window.scrollTo({top: 0, behavior:'smooth'});
+}
+
+// Init breadcrumb
+updateBreadcrumb([{label: 'Service Manager'}]);
+</script>
+
+
+</body></html>
